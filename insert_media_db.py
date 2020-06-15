@@ -19,7 +19,7 @@ if len(sys.argv) > 2:
 if os.path.isfile(sys.argv[1]) == False:
     sys.stderr.write("File does not exists\n")
     sys.exit(1)
-    
+
 paramMysql = {
     'host'       : MYSQL_HOST,
     'port'       : MYSQL_PORT,
@@ -28,11 +28,17 @@ paramMysql = {
     'db'         : MYSQL_DB
 }
 
-mediainfo_cmd = "mediainfo --Output=JSON '" + sys.argv[1].replace("'", "\\'") + "'"
-media_info = subprocess.check_output(mediainfo_cmd, shell=True).decode("utf-8")[:-1]
+proc = subprocess.run(
+    ['mediainfo', '--Output=JSON', sys.argv[1] ],
+    stdout=subprocess.PIPE
+)
+media_info = proc.stdout.decode("utf-8")[:-1]
 
-realpath_cmd = "realpath '" + sys.argv[1].replace("'", "\\'") + "'"
-realpath = subprocess.check_output(realpath_cmd, shell=True).decode("utf-8")[:-1]
+proc = subprocess.run(
+    ['realpath', sys.argv[1] ],
+    stdout=subprocess.PIPE
+)
+realpath = proc.stdout.decode("utf-8")[:-1]
 
 sql = "SELECT media_id FROM media_file WHERE media_filename = %(realpath)s"
 
@@ -50,8 +56,6 @@ if cur.rowcount == 0:
 else:
     for row in rows:
         media_id = row['media_id']
-
-print (media_id)
 
 media_json = json.loads(media_info)['media']
 
@@ -82,6 +86,7 @@ for track in media_json["track"]:
                     'media_key': str(key),
                     'media_value': str(track[key])
                 })
-                
+
+print ("Media updated : " + realpath)    
 
 conn.close()
