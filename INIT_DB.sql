@@ -28,7 +28,7 @@ CREATE TABLE media_track
     track_type_id INT UNSIGNED NOT NULL,
     media_id INT UNSIGNED NOT NULL,
     media_key VARCHAR(100) NOT NULL,
-    media_value VARCHAR(512),
+    media_value TEXT,
     CONSTRAINT fk_media_track_track_type FOREIGN KEY (track_type_id) REFERENCES mediainfo.ref_media_track_type(track_type_id),
     UNIQUE INDEX idx_media_type_key (media_id, track_type_id, media_key)
 );
