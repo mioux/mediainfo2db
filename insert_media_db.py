@@ -65,15 +65,22 @@ for track in media_json["track"]:
     rows = cur.fetchall()
     for row in rows:
         track_type_id = row["track_type_id"]
+        StreamOrder = int(track.get("StreamOrder", -1))
+        if StreamOrder == -1:
+            StreamOrder = track.get("@typeorder", 0)
+
+
         sql = """
                 REPLACE INTO media_track (
                     track_type_id,
                     media_id,
+                    media_index,
                     media_key,
                     media_value
                 ) VALUES (
                     %(track_type_id)s,
                     %(media_id)s,
+                    %(media_index)s,
                     %(media_key)s,
                     %(media_value)s
                 )
@@ -83,6 +90,7 @@ for track in media_json["track"]:
                 cur.execute(sql, { 
                     'track_type_id': int(track_type_id),
                     'media_id': int(media_id),
+                    'media_index': int(StreamOrder),
                     'media_key': str(key),
                     'media_value': str(track[key])
                 })
